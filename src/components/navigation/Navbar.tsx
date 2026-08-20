@@ -17,18 +17,20 @@ export function Navbar() {
   const activeSection = useActiveSection(SECTION_IDS_ARRAY)
   const reduced = useReducedMotion()
 
-  const closeMenu = useCallback(() => setMobileOpen(false), [])
-
   const handleNavClick = useCallback(
     (href: string) => {
-      closeMenu()
       const id = href.replace('#', '')
-      const el = document.getElementById(id)
-      if (el) {
-        el.scrollIntoView({ behavior: reduced ? 'instant' : 'smooth' })
-      }
+      // Close the menu first, then scroll after the close animation finishes
+      // so the layout shift from the menu doesn't interfere with scroll position
+      setMobileOpen(false)
+      setTimeout(() => {
+        const el = document.getElementById(id)
+        if (el) {
+          el.scrollIntoView({ behavior: reduced ? 'instant' : 'smooth' })
+        }
+      }, 300)
     },
-    [closeMenu, reduced],
+    [reduced],
   )
 
   const isActive = (href: string) => {
@@ -162,7 +164,7 @@ export function Navbar() {
                   href={SITE_CONFIG.resumeUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  onClick={closeMenu}
+                  onClick={() => setMobileOpen(false)}
                   className={cn(
                     'flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-md text-sm font-medium',
                     'text-secondary-text border border-border bg-surface-elevated',
